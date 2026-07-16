@@ -1,0 +1,4 @@
+contact_links:
+  - name: Question
+    url: https://github.com/amkillam/infostring/discussions
+    about: Questions about infostring should be posted as a GitHub discussion.

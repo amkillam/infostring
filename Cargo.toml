@@ -1,0 +1,17 @@
+[package]
+name = "infostring"
+version = "0.1.0"
+edition = "2024"
+description = "Serde serializer and deserializer for Quake info strings"
+license = "MIT"
+
+[features]
+default = ["std", "alloc"]
+std = ["serde/std"]
+alloc = ["serde/alloc"]
+
+[dependencies]
+serde = { version = "1.0", default-features = false, features = [
+  "alloc",
+  "derive",
+] }
