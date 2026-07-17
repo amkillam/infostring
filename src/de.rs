@@ -10,8 +10,7 @@ where
     T: Deserialize<'a>,
 {
     let mut deserializer = Deserializer::from_infostr(s);
-    let t = T::deserialize(&mut deserializer)?;
-    Ok(t)
+    T::deserialize(&mut deserializer)
 }
 
 pub struct Deserializer<'de> {
