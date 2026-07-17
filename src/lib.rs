@@ -18,7 +18,10 @@ pub use ser::{Serializer, to_string};
 mod tests {
 
     #[cfg(not(feature = "std"))]
-    use super::alloc::string::{String, ToString};
+    use super::alloc::{
+        string::{String, ToString},
+        vec,
+    };
 
     use super::*;
     use serde::{Deserialize, Serialize};

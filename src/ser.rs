@@ -19,7 +19,7 @@ pub struct Serializer {
     output: String,
 }
 
-impl<'a> ser::Serializer for &'a mut Serializer {
+impl ser::Serializer for &mut Serializer {
     type Ok = ();
     type Error = Error;
 
@@ -175,7 +175,7 @@ impl<'a> ser::Serializer for &'a mut Serializer {
     }
 }
 
-// Flatten sequence or and tuple
+// Flatten sequence or tuple
 macro_rules! flatten_container {
     ($trait:path, $method:ident) => {
         impl<'a> $trait for &'a mut Serializer {
@@ -196,8 +196,8 @@ flatten_container!(ser::SerializeTuple, serialize_element);
 flatten_container!(ser::SerializeTupleStruct, serialize_field);
 flatten_container!(ser::SerializeTupleVariant, serialize_field);
 
-// Struct variants serialize like structs (key-value)
-impl<'a> ser::SerializeStructVariant for &'a mut Serializer {
+// Struct variants serialize like key-value like structs
+impl ser::SerializeStructVariant for &mut Serializer {
     type Ok = ();
     type Error = Error;
     fn serialize_field<T: ?Sized + Serialize>(
@@ -216,7 +216,7 @@ impl<'a> ser::SerializeStructVariant for &'a mut Serializer {
 }
 
 // Maps and Structs serialize key-value pairs
-impl<'a> ser::SerializeStruct for &'a mut Serializer {
+impl ser::SerializeStruct for &mut Serializer {
     type Ok = ();
     type Error = Error;
     fn serialize_field<T: ?Sized + Serialize>(
@@ -234,7 +234,7 @@ impl<'a> ser::SerializeStruct for &'a mut Serializer {
     }
 }
 
-impl<'a> ser::SerializeMap for &'a mut Serializer {
+impl ser::SerializeMap for &mut Serializer {
     type Ok = ();
     type Error = Error;
     fn serialize_key<T: ?Sized + Serialize>(&mut self, key: &T) -> Result<()> {

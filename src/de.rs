@@ -9,7 +9,7 @@ pub fn from_str<'a, T>(s: &'a str) -> Result<T>
 where
     T: Deserialize<'a>,
 {
-    let mut deserializer = Deserializer::from_str(s);
+    let mut deserializer = Deserializer::from_infostr(s);
     let t = T::deserialize(&mut deserializer)?;
     Ok(t)
 }
@@ -20,7 +20,7 @@ pub struct Deserializer<'de> {
 }
 
 impl<'de> Deserializer<'de> {
-    pub fn from_str(input: &'de str) -> Self {
+    pub fn from_infostr(input: &'de str) -> Self {
         let mut parts = input.split('\\');
         if input.starts_with('\\') {
             parts.next();
@@ -51,7 +51,7 @@ macro_rules! parse_primitive {
     };
 }
 
-impl<'de, 'a> de::Deserializer<'de> for &'a mut Deserializer<'de> {
+impl<'de> de::Deserializer<'de> for &mut Deserializer<'de> {
     type Error = Error;
 
     fn deserialize_any<V>(self, visitor: V) -> Result<V::Value>
