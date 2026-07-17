@@ -3,7 +3,7 @@ use core::fmt;
 #[cfg(not(feature = "std"))]
 use crate::alloc::string::{String, ToString};
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub enum Error {
     Message(String),
     ParseError(String),
