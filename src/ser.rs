@@ -196,7 +196,7 @@ flatten_container!(ser::SerializeTuple, serialize_element);
 flatten_container!(ser::SerializeTupleStruct, serialize_field);
 flatten_container!(ser::SerializeTupleVariant, serialize_field);
 
-// Struct variants serialize like key-value like structs
+// Struct variants serialize key-value like structs
 impl ser::SerializeStructVariant for &mut Serializer {
     type Ok = ();
     type Error = Error;

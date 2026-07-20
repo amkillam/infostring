@@ -1,6 +1,8 @@
 use crate::error::{Error, Result};
-use serde::Deserialize;
-use serde::de::{self, IntoDeserializer, MapAccess, SeqAccess, Visitor};
+use serde::{
+    Deserialize,
+    de::{self, IntoDeserializer, MapAccess, SeqAccess, Visitor},
+};
 
 #[cfg(not(feature = "std"))]
 use crate::alloc::string::ToString;
@@ -57,7 +59,11 @@ impl<'de> de::Deserializer<'de> for &mut Deserializer<'de> {
     where
         V: Visitor<'de>,
     {
-        self.deserialize_map(visitor)
+        if let Some(val) = self.current_value.take() {
+            visitor.visit_borrowed_str(val)
+        } else {
+            self.deserialize_map(visitor)
+        }
     }
 
     fn deserialize_map<V>(self, visitor: V) -> Result<V::Value>
@@ -103,6 +109,25 @@ impl<'de> de::Deserializer<'de> for &mut Deserializer<'de> {
         V: Visitor<'de>,
     {
         self.deserialize_seq(visitor)
+    }
+
+    fn deserialize_newtype_struct<V>(self, _name: &'static str, visitor: V) -> Result<V::Value>
+    where
+        V: Visitor<'de>,
+    {
+        visitor.visit_newtype_struct(self)
+    }
+
+    fn deserialize_enum<V>(
+        self,
+        _name: &'static str,
+        _variants: &'static [&'static str],
+        visitor: V,
+    ) -> Result<V::Value>
+    where
+        V: Visitor<'de>,
+    {
+        visitor.visit_enum(self.pop_value()?.into_deserializer())
     }
 
     fn deserialize_bool<V>(self, visitor: V) -> Result<V::Value>
@@ -157,7 +182,15 @@ impl<'de> de::Deserializer<'de> for &mut Deserializer<'de> {
     where
         V: Visitor<'de>,
     {
-        visitor.visit_some(self)
+        // Check if the staged value is an empty string
+        if self.current_value == Some("") {
+            self.pop_value()?;
+            // Explicitly tell the struct visitor that this value is omitted
+            visitor.visit_none()
+        } else {
+            // Otherwise, there is a value. Pass the deserializer down to the inner type.
+            visitor.visit_some(self)
+        }
     }
 
     fn deserialize_identifier<V>(self, visitor: V) -> Result<V::Value>
@@ -175,9 +208,8 @@ impl<'de> de::Deserializer<'de> for &mut Deserializer<'de> {
         visitor.visit_unit()
     }
 
-    // Forward the rest to any
     serde::forward_to_deserialize_any! {
-        bytes byte_buf unit unit_struct newtype_struct enum
+        bytes byte_buf unit unit_struct
     }
 }
 
@@ -221,7 +253,8 @@ impl<'de, 'a> SeqAccess<'de> for InfoStringSeqAccess<'a, 'de> {
     where
         T: de::DeserializeSeed<'de>,
     {
-        // Clone iterator to peek if we've run out of items without advancing state
+        // Clone iterator to check whether we've run out of items without
+        // advancing state
         let mut peek = self.de.parts.clone();
         if peek.next().is_none() && self.de.current_value.is_none() {
             return Ok(None);
