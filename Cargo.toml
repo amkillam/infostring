@@ -1,6 +1,6 @@
 [package]
 name = "infostring"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2024"
 authors = ["Adam Killam <adammkillam@gmail.com>"]
 description = "Serde serializer and deserializer for Quake info strings"
